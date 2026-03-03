@@ -44,12 +44,13 @@ def get_calendar_events() -> list[str]:
 
 def _format_event(event: dict) -> str:
     start = event["start"]
+    end = event["end"]
     summary = event.get("summary", "(No title)")
 
     if "dateTime" in start:
-        dt = datetime.fromisoformat(start["dateTime"]).astimezone(TIMEZONE)
-        time_str = dt.strftime("%H:%M")
-        return f"{time_str} — {summary}"
+        start_dt = datetime.fromisoformat(start["dateTime"]).astimezone(TIMEZONE)
+        end_dt = datetime.fromisoformat(end["dateTime"]).astimezone(TIMEZONE)
+        return f"{start_dt.strftime('%H:%M')}–{end_dt.strftime('%H:%M')} — {summary}"
     else:
         # All-day event
         return f"All day — {summary}"

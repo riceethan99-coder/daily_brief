@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 
 from notion_fetcher import get_todos
 from calendar_fetcher import get_calendar_events
+from email_fetcher import get_emails
 from telegram_sender import send_message
 
 
-def format_brief(todos: list[str], events: list[str]) -> str:
+def format_brief(todos: list[str], events: list[str], emails: list[str]) -> str:
     now = datetime.now()
     today = now.strftime(f"%A, {now.day} %B")  # e.g. "Monday, 2 March"
 
@@ -30,6 +31,15 @@ def format_brief(todos: list[str], events: list[str]) -> str:
     else:
         lines.append("📋 *TO-DO* — nothing on the list today!")
 
+    # --- Email section ---
+    lines.append("")
+    if emails:
+        lines.append(f"📧 *EMAILS* ({len(emails)} email{'s' if len(emails) != 1 else ''} need{'s' if len(emails) == 1 else ''} attention)")
+        for email in emails:
+            lines.append(f"• {email}")
+    else:
+        lines.append("📧 *EMAILS* — inbox clear")
+
     # --- Placeholder for future sections ---
     lines.append("\n💼 *LinkedIn* — coming soon")
 
@@ -41,7 +51,8 @@ def main():
 
     todos = get_todos()
     events = get_calendar_events()
-    message = format_brief(todos, events)
+    emails = get_emails()
+    message = format_brief(todos, events, emails)
     send_message(message)
     print("Brief sent successfully.")
 
