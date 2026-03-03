@@ -1,13 +1,23 @@
 # Daily Brief
 
-A Python script that sends a daily morning Telegram message with your Google Calendar events, Notion to-dos, and important emails filtered by AI. Runs automatically via GitHub Actions — no server required.
+A Python script that sends a daily morning Telegram message with an AI-generated focus recommendation, Google Calendar events, smart task management, and important emails filtered by AI. Runs automatically via GitHub Actions — no server required.
 
 ## What it sends
 
+- **Focus for Today** — a one-sentence AI recommendation of the single most important thing to work on, prioritising deadlines and business tasks
 - **Today's calendar** — events from Google Calendar with start and end times
-- **To-do list** — unchecked to-do items from a Notion page
+- **Today's tasks** — tasks carried over from yesterday plus anything moved from Tomorrow
+- **Recurring habits** — daily habits that auto-reset to unchecked every morning
 - **Emails** — unread emails from your Primary inbox, filtered by Claude AI to surface only the ones that need your attention
 - *LinkedIn integration coming soon*
+
+## Daily task reset (runs at 6am UTC)
+
+Each morning the workflow automatically:
+1. **Resets** all Recurring Tasks to unchecked
+2. **Carries over** any uncompleted Today tasks (completed ones are deleted)
+3. **Moves** everything from Tomorrow into Today, then clears Tomorrow
+4. Sends the brief with the updated task list
 
 ## Setup
 
@@ -22,8 +32,21 @@ A Python script that sends a daily morning Telegram message with your Google Cal
 
 1. Go to [notion.so/my-integrations](https://www.notion.so/my-integrations) → **New integration**
 2. Copy the **integration token** (starts with `ntn_`)
-3. Open your to-do page in Notion → `...` menu → **Connections** → add your integration
+3. Open your Notion page → `...` menu → **Connections** → add your integration
 4. Copy the **page ID** from the URL — it's the hex string at the end, e.g. `3170987e29b580bc83c8c7ee98c07ee9`
+
+**Page structure required:** The Notion page must have three **toggle headings** (use `/toggle heading 1` in Notion) with these exact names:
+
+```
+▶ Recurring Tasks
+   ☐ Send 15 connection requests
+▶ Today
+   ☐ Call the client
+▶ Tomorrow
+   ☐ Write blog post
+```
+
+> The headings must be **toggle headings** (not regular headings) so tasks can be nested inside them as children. Add tasks by pressing Enter inside the toggle.
 
 ### 3. Google Calendar
 
@@ -104,9 +127,10 @@ Go to the **Actions** tab in your GitHub repo → **Daily Brief** → **Run work
 
 ```
 ├── main.py                            # Entry point
-├── notion_fetcher.py                  # Reads to-dos from Notion
+├── notion_manager.py                  # Reads and resets the three-section Notion task page
 ├── calendar_fetcher.py                # Reads today's events from Google Calendar
 ├── email_fetcher.py                   # Fetches Gmail and filters with Claude AI
+├── focus_generator.py                 # Generates AI focus recommendation with Claude
 ├── gmail_auth.py                      # One-time script to get Gmail refresh token
 ├── telegram_sender.py                 # Sends the Telegram message
 ├── .github/workflows/daily_brief.yml  # GitHub Actions cron job
