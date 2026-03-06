@@ -36,4 +36,8 @@ jobs:
           GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
           GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRADING212_ISA_KEY: ${{ secrets.TRADING212_ISA_KEY }}
+          TRADING212_ISA_SECRET: ${{ secrets.TRADING212_ISA_SECRET }}
+          TRADING212_INVEST_KEY: ${{ secrets.TRADING212_INVEST_KEY }}
+          TRADING212_INVEST_SECRET: ${{ secrets.TRADING212_INVEST_SECRET }}
         run: python main.py

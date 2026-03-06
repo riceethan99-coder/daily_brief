@@ -1,6 +1,6 @@
 # Daily Brief
 
-A Python script that sends a daily morning Telegram message with an AI-generated focus recommendation, Google Calendar events, smart task management, and important emails filtered by AI. Runs automatically via GitHub Actions — no server required.
+A Python script that sends a daily morning Telegram message with an AI-generated focus recommendation, Google Calendar events, smart task management, important emails filtered by AI, a markets brief, and a personal portfolio snapshot. Runs automatically via GitHub Actions — no server required.
 
 ## What it sends
 
@@ -9,6 +9,8 @@ A Python script that sends a daily morning Telegram message with an AI-generated
 - **Today's tasks** — tasks carried over from yesterday plus anything moved from Tomorrow
 - **Recurring habits** — daily habits that auto-reset to unchecked every morning
 - **Emails** — unread emails from your Primary inbox, filtered by Claude AI to surface only the ones that need your attention
+- **Markets** — a structured snapshot (S&P 500, FTSE 100, Mag 7 aggregate, Bitcoin) plus a 7–8 sentence AI-generated summary of what drove the moves, sourced from top-tier financial outlets
+- **Portfolio** — high-level summary of each Trading 212 account (total value, daily %, unrealised P&L, cash)
 - *LinkedIn integration coming soon*
 
 ## Daily task reset (runs at 6am UTC)
@@ -79,7 +81,18 @@ Each morning the workflow automatically:
 1. Go to [console.anthropic.com](https://console.anthropic.com) → **API Keys → Create key**
 2. Copy it into your `.env` as `ANTHROPIC_API_KEY`
 
-### 6. GitHub secrets
+### 6. Trading 212 (read-only)
+
+The brief pulls a high-level summary for each account. You need a separate API key per account.
+
+1. Open the Trading 212 app → **Settings → API (Beta)**
+2. Create a key for your **Stocks & Shares ISA** — copy the key and secret immediately (secret shown once)
+3. Create a second key for your **Invest** account — copy both values
+4. Add all four values to your `.env` and GitHub secrets
+
+> Only read permissions are used. No order placement or trading functionality is implemented.
+
+### 7. GitHub secrets
 
 In your repo go to **Settings → Secrets and variables → Actions** and add:
 
@@ -95,6 +108,10 @@ In your repo go to **Settings → Secrets and variables → Actions** and add:
 | `GMAIL_CLIENT_SECRET` | From Google Cloud OAuth credentials |
 | `GMAIL_REFRESH_TOKEN` | Printed by `gmail_auth.py` |
 | `ANTHROPIC_API_KEY` | From console.anthropic.com |
+| `TRADING212_ISA_KEY` | Trading 212 ISA API key |
+| `TRADING212_ISA_SECRET` | Trading 212 ISA API secret |
+| `TRADING212_INVEST_KEY` | Trading 212 Invest API key |
+| `TRADING212_INVEST_SECRET` | Trading 212 Invest API secret |
 
 ## Running locally
 
@@ -131,6 +148,8 @@ Go to the **Actions** tab in your GitHub repo → **Daily Brief** → **Run work
 ├── calendar_fetcher.py                # Reads today's events from Google Calendar
 ├── email_fetcher.py                   # Fetches Gmail and filters with Claude AI
 ├── focus_generator.py                 # Generates AI focus recommendation with Claude
+├── market_fetcher.py                  # Fetches market data (yfinance) + AI market brief
+├── portfolio_fetcher.py               # Reads Trading 212 account summaries (read-only)
 ├── gmail_auth.py                      # One-time script to get Gmail refresh token
 ├── telegram_sender.py                 # Sends the Telegram message
 ├── .github/workflows/daily_brief.yml  # GitHub Actions cron job

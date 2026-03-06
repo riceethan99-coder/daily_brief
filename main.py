@@ -6,6 +6,8 @@ from notion_manager import get_tasks
 from calendar_fetcher import get_calendar_events
 from email_fetcher import get_emails
 from focus_generator import get_focus
+from market_fetcher import get_market_brief
+from portfolio_fetcher import get_portfolio_summary
 from telegram_sender import send_message
 
 
@@ -15,6 +17,8 @@ def format_brief(
     events: list[str],
     emails: list[str],
     focus: str,
+    market_brief: str,
+    portfolio: str,
 ) -> str:
     now = datetime.now()
     today = now.strftime(f"%A, {now.day} %B")  # e.g. "Monday, 2 March"
@@ -62,6 +66,20 @@ def format_brief(
     else:
         lines.append("📧 *EMAILS* — inbox clear")
 
+    # --- Markets section ---
+    lines.append("")
+    if market_brief:
+        lines.append(market_brief)
+    else:
+        lines.append("📈 *MARKETS* — data unavailable")
+
+    # --- Portfolio section ---
+    lines.append("")
+    if portfolio:
+        lines.append(portfolio)
+    else:
+        lines.append("💰 *PORTFOLIO* — data unavailable")
+
     # --- Placeholder for future sections ---
     lines.append("\n💼 *LinkedIn* — coming soon")
 
@@ -75,7 +93,9 @@ def main():
     events = get_calendar_events()
     emails = get_emails()
     focus = get_focus(events, todos, recurring, emails)
-    message = format_brief(recurring, todos, events, emails, focus)
+    market_brief = get_market_brief()
+    portfolio = get_portfolio_summary()
+    message = format_brief(recurring, todos, events, emails, focus, market_brief, portfolio)
     send_message(message)
     print("Brief sent successfully.")
 
